@@ -11,9 +11,34 @@ WORK_MIN = 2
 SHORT_BREAK_MIN = .5
 LONG_BREAK_MIN = 1
 REPS = 0
-
+timer = None
 
 # ---------------------------- TIMER RESET ------------------------------- #
+
+def rest_timer():
+    global timer
+    global REPS
+
+    if timer:
+        canvas.after_cancel(timer)
+        REPS = 0
+        l1.configure(text="Timer", fg=GREEN, bg=YELLOW, font=(FONT_NAME, 40, "bold"))
+        canvas.itemconfig(timer_text, text="00:00")
+        l2.configure(text="")
+
+
+
+def start_button():
+    rest_timer()
+    start_timer()
+
+
+# def close_button():
+#     rest_timer()
+#     window.destroy()
+
+
+
 
 # ---------------------------- TIMER MECHANISM ------------------------------- #
 
@@ -66,6 +91,10 @@ def start_timer():
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
 
 def count_down(count):
+    global REPS
+    global timer
+    check_mark = "✔"
+    text_out = ""
     print(count)
     count_min = math.floor(count / 60)
     count_sec = count % 60
@@ -79,12 +108,18 @@ def count_down(count):
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}")
 
     if count > 0:
-        window.after(100, count_down, count - 1)
+        timer = window.after(100, count_down, count - 1)
     else:
         start_timer()
+        for i in range(math.floor(REPS/2)):
+            text_out += check_mark
+
+        print(f"============ reps = {REPS}======================")
+        print(text_out)
+        l2.configure(text=text_out)
 
 
-# ---------------------------- UI SETUP ------------------------------- #
+    # ---------------------------- UI SETUP ------------------------------- #
 
 window = Tk()
 window.title("Pomodoro")
@@ -101,14 +136,18 @@ canvas.grid(row=1, column=1)
 l1 = Label(text="Timer", fg=GREEN, bg=YELLOW, font=(FONT_NAME, 40, "bold"))
 l1.grid(row=0, column=1)
 
-l2 = Label(text="✔ ✔ ✔ ✔", fg=GREEN, bg=YELLOW, font=(FONT_NAME, 15, "bold"), pady=10)
+l2 = Label(fg=GREEN, bg=YELLOW, font=(FONT_NAME, 15, "bold"), pady=10)
 l2.grid(row=3, column=1, sticky="S")
 
-b1 = Button(text="Start", highlightthickness=0, padx=15, command=start_timer)
+b1 = Button(text="Start", highlightthickness=0, padx=15, command=start_button)
 b1.grid(row=2, column=0)
 
-b2 = Button(text="Reset", highlightthickness=0, padx=12)
+b2 = Button(text="Reset", highlightthickness=0, padx=12, command=rest_timer)
 b2.grid(row=2, column=2)
+
+b3 = Button(text="Close", highlightthickness=0, padx=15, command=window.destroy)
+b3.grid(row=4, column=1)
+
 
 # count_down(5)
 
